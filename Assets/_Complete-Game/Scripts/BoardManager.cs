@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System;
-using System.Collections.Generic; 		//Allows us to use Lists.
-using Random = UnityEngine.Random; 		//Tells Random to use the Unity Engine random number generator.
+using System.Collections.Generic; 		//允许我们使用列表。
+using Random = UnityEngine.Random; 		//告诉 Random 使用单位引擎随机数生成器。
 
 namespace Completed
 	
@@ -9,15 +9,15 @@ namespace Completed
 	
 	public class BoardManager : MonoBehaviour
 	{
-		// Using Serializable allows us to embed a class with sub properties in the inspector.
+		// 使用Serializable允许我们在检查器中嵌入带有子属性的类。
 		[Serializable]
 		public class Count
 		{
-			public int minimum; 			//Minimum value for our Count class.
-			public int maximum; 			//Maximum value for our Count class.
+			public int minimum; 			//我们的Count类的最小值。
+			public int maximum; 			//我们的Count类的最大值。
 			
 			
-			//Assignment constructor.
+			//赋值构造函数。
 			public Count (int min, int max)
 			{
 				minimum = min;
@@ -26,130 +26,130 @@ namespace Completed
 		}
 		
 		
-		public int columns = 8; 										//Number of columns in our game board.
-		public int rows = 8;											//Number of rows in our game board.
-		public Count wallCount = new Count (5, 9);						//Lower and upper limit for our random number of walls per level.
-		public Count foodCount = new Count (1, 5);						//Lower and upper limit for our random number of food items per level.
-		public GameObject exit;											//Prefab to spawn for exit.
-		public GameObject[] floorTiles;									//Array of floor prefabs.
-		public GameObject[] wallTiles;									//Array of wall prefabs.
-		public GameObject[] foodTiles;									//Array of food prefabs.
-		public GameObject[] enemyTiles;									//Array of enemy prefabs.
-		public GameObject[] outerWallTiles;								//Array of outer tile prefabs.
+		public int columns = 8; 										//游戏板中的列数。
+		public int rows = 8;											//游戏板中的行数。
+		public Count wallCount = new Count (5, 9);						//每层随机墙数的上限和下限。
+		public Count foodCount = new Count (1, 5);						//每层随机食物数量的上限和下限。
+		public GameObject exit;											//预置出口。
+		public GameObject[] floorTiles;									//地板预制件阵列。
+		public GameObject[] wallTiles;									//墙预制件阵列。
+		public GameObject[] foodTiles;									//一系列的预制食品。
+		public GameObject[] enemyTiles;									//敌人预制件阵列。
+		public GameObject[] outerWallTiles;								//外瓦预制件阵列。
 		
-		private Transform boardHolder;									//A variable to store a reference to the transform of our Board object.
-		private List <Vector3> gridPositions = new List <Vector3> ();	//A list of possible locations to place tiles.
+		private Transform boardHolder;									//一个变量，用于存储对Board对象转换的引用。
+		private List <Vector3> gridPositions = new List <Vector3> ();	//放置磁贴的可能位置列表。
 		
 		
-		//Clears our list gridPositions and prepares it to generate a new board.
+		//清除我们的列表网格位置并准备生成一个新板。
 		void InitialiseList ()
 		{
-			//Clear our list gridPositions.
+			//清除我们的列表网格位置。
 			gridPositions.Clear ();
 			
-			//Loop through x axis (columns).
+			//循环通过x轴(列)。
 			for(int x = 1; x < columns-1; x++)
 			{
-				//Within each column, loop through y axis (rows).
+				//在每一列中，循环通过y轴(行)。
 				for(int y = 1; y < rows-1; y++)
 				{
-					//At each index add a new Vector3 to our list with the x and y coordinates of that position.
+					//在每个索引处用该位置的x和y坐标向列表添加一个新的Vector3。
 					gridPositions.Add (new Vector3(x, y, 0f));
 				}
 			}
 		}
 		
 		
-		//Sets up the outer walls and floor (background) of the game board.
+		//设置游戏板的外墙和地板(背景)。
 		void BoardSetup ()
 		{
-			//Instantiate Board and set boardHolder to its transform.
+			//实例化Board并将其转换设置为boardHolder。
 			boardHolder = new GameObject ("Board").transform;
 			
-			//Loop along x axis, starting from -1 (to fill corner) with floor or outerwall edge tiles.
+			//沿着x轴进行循环，从-1开始(以填充角)使用地板或外壁边缘瓷砖。
 			for(int x = -1; x < columns + 1; x++)
 			{
-				//Loop along y axis, starting from -1 to place floor or outerwall tiles.
+				//沿y轴循环，从-1开始放置地板或外墙瓷砖。
 				for(int y = -1; y < rows + 1; y++)
 				{
-					//Choose a random tile from our array of floor tile prefabs and prepare to instantiate it.
+					//从我们的地砖预制件数组中随机选择一个瓦片，并准备实例化它。
 					GameObject toInstantiate = floorTiles[Random.Range (0,floorTiles.Length)];
 					
-					//Check if we current position is at board edge, if so choose a random outer wall prefab from our array of outer wall tiles.
+					//检查我们当前的位置是否在板边，如果是这样，从我们的外墙瓷砖数组中随机选择一个外墙预制件。
 					if(x == -1 || x == columns || y == -1 || y == rows)
 						toInstantiate = outerWallTiles [Random.Range (0, outerWallTiles.Length)];
 					
-					//Instantiate the GameObject instance using the prefab chosen for toInstantiate at the Vector3 corresponding to current grid position in loop, cast it to GameObject.
+					//使用prefab实例化GameObject实例，该prefab选择用于在循环中当前网格位置对应的Vector3处实例化，并将其转换为GameObject。
 					GameObject instance =
 						Instantiate (toInstantiate, new Vector3 (x, y, 0f), Quaternion.identity) as GameObject;
 					
-					//Set the parent of our newly instantiated object instance to boardHolder, this is just organizational to avoid cluttering hierarchy.
+					//将我们新实例化的对象实例的父级设置为boardHolder，这只是组织性的，以避免混乱的层次结构。
 					instance.transform.SetParent (boardHolder);
 				}
 			}
 		}
 		
 		
-		//RandomPosition returns a random position from our list gridPositions.
+		//RandomPosition从我们的列表gridPositions返回一个随机位置。
 		Vector3 RandomPosition ()
 		{
-			//Declare an integer randomIndex, set it's value to a random number between 0 and the count of items in our List gridPositions.
+			//声明一个整数randomIndex，将其值设置为一个随机数，该随机数介于0和我们的List gridPositions中的项数之间。
 			int randomIndex = Random.Range (0, gridPositions.Count);
 			
-			//Declare a variable of type Vector3 called randomPosition, set it's value to the entry at randomIndex from our List gridPositions.
+			//声明一个名为randomPosition的变量类型为Vector3，将其值从我们的List gridPositions设置为条目at randomIndex。
 			Vector3 randomPosition = gridPositions[randomIndex];
 			
-			//Remove the entry at randomIndex from the list so that it can't be re-used.
+			//从列表中删除randomIndex条目，这样它就不能被重用了。
 			gridPositions.RemoveAt (randomIndex);
 			
-			//Return the randomly selected Vector3 position.
+			//返回随机选择的Vector3位置。
 			return randomPosition;
 		}
 		
 		
-		//LayoutObjectAtRandom accepts an array of game objects to choose from along with a minimum and maximum range for the number of objects to create.
+		//LayoutObjectAtRandom接受一个游戏对象数组来进行选择，以及创建对象数量的最小和最大范围。
 		void LayoutObjectAtRandom (GameObject[] tileArray, int minimum, int maximum)
 		{
-			//Choose a random number of objects to instantiate within the minimum and maximum limits
+			//选择要在最小和最大限制内实例化的随机对象数
 			int objectCount = Random.Range (minimum, maximum+1);
 			
-			//Instantiate objects until the randomly chosen limit objectCount is reached
+			//实例化对象，直到达到随机选择的限制objectCount为止
 			for(int i = 0; i < objectCount; i++)
 			{
-				//Choose a position for randomPosition by getting a random position from our list of available Vector3s stored in gridPosition
+				//通过从gridPosition中存储的可用vector3列表中获取一个随机位置，为randomPosition选择一个位置
 				Vector3 randomPosition = RandomPosition();
 				
-				//Choose a random tile from tileArray and assign it to tileChoice
+				//从tileArray中随机选择一个平铺，并将其赋给tileChoice
 				GameObject tileChoice = tileArray[Random.Range (0, tileArray.Length)];
 				
-				//Instantiate tileChoice at the position returned by RandomPosition with no change in rotation
+				//实例化tileChoice在不改变旋转的随机位置返回的位置
 				Instantiate(tileChoice, randomPosition, Quaternion.identity);
 			}
 		}
 		
 		
-		//SetupScene initializes our level and calls the previous functions to lay out the game board
+		//SetupScene初始化我们的关卡并调用前面的函数来布局游戏板
 		public void SetupScene (int level)
 		{
-			//Creates the outer walls and floor.
+			//创建外墙和地板。
 			BoardSetup ();
 			
-			//Reset our list of gridpositions.
+			//重置我们的网格位置列表。
 			InitialiseList ();
 			
-			//Instantiate a random number of wall tiles based on minimum and maximum, at randomized positions.
+			//根据最小值和最大值，在随机位置实例化随机数量的墙砖。
 			LayoutObjectAtRandom (wallTiles, wallCount.minimum, wallCount.maximum);
 			
-			//Instantiate a random number of food tiles based on minimum and maximum, at randomized positions.
+			//在随机位置实例化基于最小值和最大值的随机数量的食物块。
 			LayoutObjectAtRandom (foodTiles, foodCount.minimum, foodCount.maximum);
 			
-			//Determine number of enemies based on current level number, based on a logarithmic progression
+			//根据当前等级的数量，根据对数级数确定敌人的数量
 			int enemyCount = (int)Mathf.Log(level, 2f);
 			
-			//Instantiate a random number of enemies based on minimum and maximum, at randomized positions.
+			//基于最小值和最大值，在随机位置实例化一个随机数量的敌人。
 			LayoutObjectAtRandom (enemyTiles, enemyCount, enemyCount);
 			
-			//Instantiate the exit tile in the upper right hand corner of our game board
+			//实例化游戏板右上角的出口平铺
 			Instantiate (exit, new Vector3 (columns - 1, rows - 1, 0f), Quaternion.identity);
 		}
 	}

@@ -4,66 +4,66 @@ using System.Collections;
 
 namespace Completed
 {
-	using System.Collections.Generic;		//Allows us to use Lists. 
-	using UnityEngine.UI;					//Allows us to use UI.
+	using System.Collections.Generic;		//允许我们使用列表。 
+	using UnityEngine.UI;					//允许我们使用UI。
 	
 	public class GameManager : MonoBehaviour
 	{
-		public float levelStartDelay = 2f;						//Time to wait before starting level, in seconds.
-		public float turnDelay = 0.1f;							//Delay between each Player turn.
-		public int playerFoodPoints = 100;						//Starting value for Player food points.
-		public static GameManager instance = null;				//Static instance of GameManager which allows it to be accessed by any other script.
-		[HideInInspector] public bool playersTurn = true;		//Boolean to check if it's players turn, hidden in inspector but public.
+		public float levelStartDelay = 2f;						//在开始关卡前等待的时间，以秒为单位。
+		public float turnDelay = 0.1f;							//每个玩家回合之间的延迟。
+		public int playerFoodPoints = 100;						//玩家食物点数的起始值。
+		public static GameManager instance = null;				//GameManager的静态实例，允许任何其他脚本访问它。
+		[HideInInspector] public bool playersTurn = true;		//布尔值检查如果它是玩家转身，隐藏在检查，但公共。
 		
 		
-		private Text levelText;									//Text to display current level number.
-		private GameObject levelImage;							//Image to block out level as levels are being set up, background for levelText.
-		private BoardManager boardScript;						//Store a reference to our BoardManager which will set up the level.
-		private int level = 1;									//Current level number, expressed in game as "Day 1".
-		private List<Enemy> enemies;							//List of all Enemy units, used to issue them move commands.
-		private bool enemiesMoving;								//Boolean to check if enemies are moving.
-		private bool doingSetup = true;							//Boolean to check if we're setting up board, prevent Player from moving during setup.
+		private Text levelText;									//显示当前级别号的文本。
+		private GameObject levelImage;							//在设置关卡的时候，图片要屏蔽关卡，背景为levelText。
+		private BoardManager boardScript;						//存储对我们的BoardManager的引用，它将设置该级别。
+		private int level = 1;									//当前等级编号，在游戏中表示为“第一天”。
+		private List<Enemy> enemies;							//所有敌人单位的列表，用来发布他们的移动命令。
+		private bool enemiesMoving;								//布尔值检查敌人是否移动。
+		private bool doingSetup = true;							//布尔值检查我们是否正在设置板，防止玩家在设置过程中移动。
 		
 		
 		
-		//Awake is always called before any Start functions
+		//Awake总是在任何Start函数之前调用
 		void Awake()
 		{
-            //Check if instance already exists
+            //检查实例是否已经存在
             if (instance == null)
 
-                //if not, set instance to this
+                //如果不是，则将其设置为instance
                 instance = this;
 
-            //If instance already exists and it's not this:
+            //如果实例已经存在，而它不是这个:
             else if (instance != this)
 
-                //Then destroy this. This enforces our singleton pattern, meaning there can only ever be one instance of a GameManager.
+                //然后摧毁。这加强了我们的单例模式，这意味着GameManager只能有一个实例。
                 Destroy(gameObject);	
 			
-			//Sets this to not be destroyed when reloading scene
+			//将此设置为在重新加载场景时不被销毁
 			DontDestroyOnLoad(gameObject);
 			
-			//Assign enemies to a new List of Enemy objects.
+			//将敌人分配到一个新的敌人列表中。
 			enemies = new List<Enemy>();
 			
-			//Get a component reference to the attached BoardManager script
+			//获取对附加的BoardManager脚本的组件引用
 			boardScript = GetComponent<BoardManager>();
 			
-			//Call the InitGame function to initialize the first level 
+			//调用InitGame函数初始化第一层
 			InitGame();
 		}
 
-        //this is called only once, and the paramter tell it to be called only after the scene was loaded
-        //(otherwise, our Scene Load callback would be called the very first load, and we don't want that)
+        //这只被调用一次，并且参数告诉它只在场景加载后才被调用
+        //(否则，我们的场景加载回调会被称为第一次加载，我们不希望这样)
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static public void CallbackInitialization()
         {
-            //register the callback to be called everytime the scene is loaded
+            //注册在每次加载场景时调用的回调函数
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
-        //This is called each time a scene is loaded.
+        //每次加载一个场景时都会调用这个函数。
         static private void OnSceneLoaded(Scene arg0, LoadSceneMode arg1)
         {
             instance.level++;
@@ -71,60 +71,60 @@ namespace Completed
         }
 
 		
-		//Initializes the game for each level.
+		//初始化每个关卡的游戏。
 		void InitGame()
 		{
-			//While doingSetup is true the player can't move, prevent player from moving while title card is up.
+			//当doingSetup设置为true时，玩家不能移动，阻止玩家在纸牌打开时移动。
 			doingSetup = true;
 			
-			//Get a reference to our image LevelImage by finding it by name.
+			//通过名称找到我们的image LevelImage的引用。
 			levelImage = GameObject.Find("LevelImage");
 			
-			//Get a reference to our text LevelText's text component by finding it by name and calling GetComponent.
+			//通过按名称查找并调用GetComponent来获得对text LevelText的文本组件的引用。
 			levelText = GameObject.Find("LevelText").GetComponent<Text>();
 			
-			//Set the text of levelText to the string "Day" and append the current level number.
+			//将levelText的文本设置为字符串“Day”并追加当前的级别号。
 			levelText.text = "Day " + level;
 			
-			//Set levelImage to active blocking player's view of the game board during setup.
+			//设置levelImage在设置过程中活动阻止玩家查看游戏板。
 			levelImage.SetActive(true);
 			
-			//Call the HideLevelImage function with a delay in seconds of levelStartDelay.
+			//使用以秒为单位的levelStartDelay来调用HideLevelImage函数。
 			Invoke("HideLevelImage", levelStartDelay);
 			
-			//Clear any Enemy objects in our List to prepare for next level.
+			//清除列表中的所有敌人，为下一关做准备。
 			enemies.Clear();
 			
-			//Call the SetupScene function of the BoardManager script, pass it current level number.
+			//调用BoardManager脚本的SetupScene函数，传递当前级别号。
 			boardScript.SetupScene(level);
 			
 		}
 		
 		
-		//Hides black image used between levels
+		//隐藏在层之间使用的黑色图像
 		void HideLevelImage()
 		{
-			//Disable the levelImage gameObject.
+			//禁用levelImage gameObject。
 			levelImage.SetActive(false);
 			
-			//Set doingSetup to false allowing player to move again.
+			//将doingSetup设置为false，允许玩家再次移动。
 			doingSetup = false;
 		}
 		
-		//Update is called every frame.
+		//每一帧都调用Update。
 		void Update()
 		{
-			//Check that playersTurn or enemiesMoving or doingSetup are not currently true.
+			//检查playersTurn或enemiesMoving或doingSetup当前是否为真。
 			if(playersTurn || enemiesMoving || doingSetup)
 				
-				//If any of these are true, return and do not start MoveEnemies.
+				//如果这些都是正确的，返回并且不要开始移动敌人。
 				return;
 			
-			//Start moving enemies.
+			//开始移动的敌人。
 			StartCoroutine (MoveEnemies ());
 		}
 		
-		//Call this to add the passed in Enemy to the List of Enemy objects.
+		//调用此函数可将传入的敌方对象添加到敌方对象列表中。
 		public void AddEnemyToList(Enemy script)
 		{
 			//Add Enemy to List enemies.
@@ -132,48 +132,51 @@ namespace Completed
 		}
 		
 		
-		//GameOver is called when the player reaches 0 food points
+		//当玩家到达0食物点时游戏结束
 		public void GameOver()
 		{
-			//Set levelText to display number of levels passed and game over message
+			//设置关卡文本来显示关卡传递的数量和游戏传递消息
 			levelText.text = "After " + level + " days, you starved.";
 			
-			//Enable black background image gameObject.
+			//启用黑色背景图像游戏对象。
 			levelImage.SetActive(true);
 			
-			//Disable this GameManager.
+			//这个GameManager禁用。
 			enabled = false;
+
+			// //调用Gamequit
+			// Gamequit();
 		}
 		
-		//Coroutine to move enemies in sequence.
+		//协同程序按顺序移动敌人。
 		IEnumerator MoveEnemies()
 		{
-			//While enemiesMoving is true player is unable to move.
+			//当敌人移动时，玩家不能移动。
 			enemiesMoving = true;
 			
-			//Wait for turnDelay seconds, defaults to .1 (100 ms).
+			//等待turnDelay秒，默认为.1(100毫秒)。
 			yield return new WaitForSeconds(turnDelay);
 			
-			//If there are no enemies spawned (IE in first level):
+			//如果没有敌人滋生(即在第一级):
 			if (enemies.Count == 0) 
 			{
-				//Wait for turnDelay seconds between moves, replaces delay caused by enemies moving when there are none.
+				//在移动之间等待turnDelay秒，代替没有敌人移动时造成的延迟。
 				yield return new WaitForSeconds(turnDelay);
 			}
 			
-			//Loop through List of Enemy objects.
+			//循环遍历敌对对象列表。
 			for (int i = 0; i < enemies.Count; i++)
 			{
-				//Call the MoveEnemy function of Enemy at index i in the enemies List.
+				//在敌人列表的索引i处调用敌人的MoveEnemy函数。
 				enemies[i].MoveEnemy ();
 				
-				//Wait for Enemy's moveTime before moving next Enemy, 
+				//在移动下一个敌人之前，等待敌人的移动时间， 
 				yield return new WaitForSeconds(enemies[i].moveTime);
 			}
-			//Once Enemies are done moving, set playersTurn to true so player can move.
+			//一旦敌人移动完毕，将playersTurn设置为true，这样玩家就可以移动了。
 			playersTurn = true;
 			
-			//Enemies are done moving, set enemiesMoving to false.
+			//敌人移动完毕，设置敌人移动为false。
 			enemiesMoving = false;
 		}
 	}

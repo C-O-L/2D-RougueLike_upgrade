@@ -5,56 +5,56 @@ namespace Completed
 {
 	public class SoundManager : MonoBehaviour 
 	{
-		public AudioSource efxSource;					//Drag a reference to the audio source which will play the sound effects.
-		public AudioSource musicSource;					//Drag a reference to the audio source which will play the music.
-		public static SoundManager instance = null;		//Allows other scripts to call functions from SoundManager.				
-		public float lowPitchRange = .95f;				//The lowest a sound effect will be randomly pitched.
-		public float highPitchRange = 1.05f;			//The highest a sound effect will be randomly pitched.
-		
-		
+		public AudioSource efxSource;                   //拖动对将播放声音效果的音频源的引用。
+		public AudioSource musicSource;                 //拖动对将播放音乐的音频源的引用。
+		public static SoundManager instance = null;     //允许其他脚本从SoundManager调用函数。				
+		public float lowPitchRange = .95f;              //最低的a音效将随机调高。
+		public float highPitchRange = 1.05f;            //最高的a音效将随机调高。
+
+
 		void Awake ()
 		{
-			//Check if there is already an instance of SoundManager
+			//检查是否已存在SoundManager实例
 			if (instance == null)
-				//if not, set it to this.
+				//如果没有，请设置为这个。
 				instance = this;
-			//If instance already exists:
+			//如果实例已存在：
 			else if (instance != this)
-				//Destroy this, this enforces our singleton pattern so there can only be one instance of SoundManager.
-				Destroy (gameObject);
-			
-			//Set SoundManager to DontDestroyOnLoad so that it won't be destroyed when reloading our scene.
-			DontDestroyOnLoad (gameObject);
+				//销毁它，这将强制执行我们的单例模式，因此只能有一个SoundManager实例。
+				Destroy(gameObject);
+
+			//将SoundManager设置为DontDestroyOnLoad，以便在重新加载场景时不会破坏它。
+			DontDestroyOnLoad(gameObject);
 		}
-		
-		
-		//Used to play single sound clips.
+
+
+		//用于播放单个声音片段。
 		public void PlaySingle(AudioClip clip)
 		{
-			//Set the clip of our efxSource audio source to the clip passed in as a parameter.
+			//将efxSource音频源的剪辑设置为作为参数传入的剪辑。
 			efxSource.clip = clip;
-			
-			//Play the clip.
+
+			//播放剪辑。
 			efxSource.Play ();
 		}
-		
-		
-		//RandomizeSfx chooses randomly between various audio clips and slightly changes their pitch.
+
+
+		//RandomizeSfx在不同的音频剪辑之间随机选择，并稍微改变它们的音调。
 		public void RandomizeSfx (params AudioClip[] clips)
 		{
-			//Generate a random number between 0 and the length of our array of clips passed in.
+			//RandomizeSfx在不同的音频剪辑之间随机选择，并稍微改变它们的音调。
 			int randomIndex = Random.Range(0, clips.Length);
-			
-			//Choose a random pitch to play back our clip at between our high and low pitch ranges.
+
+			//选择一个随机音高，在高低音高之间播放剪辑。
 			float randomPitch = Random.Range(lowPitchRange, highPitchRange);
-			
-			//Set the pitch of the audio source to the randomly chosen pitch.
+
+			//将音频源的音调设置为随机选择的音调。
 			efxSource.pitch = randomPitch;
-			
-			//Set the clip to the clip at our randomly chosen index.
+
+			//将剪辑设置为我们随机选择的索引处的剪辑。
 			efxSource.clip = clips[randomIndex];
-			
-			//Play the clip.
+
+			//播放剪辑。
 			efxSource.Play();
 		}
 	}

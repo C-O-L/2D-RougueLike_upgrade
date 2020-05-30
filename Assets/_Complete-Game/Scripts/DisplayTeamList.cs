@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;	//Allows us to use UI.
-using UnityEngine.SceneManagement;
 
 namespace Completed
 {
@@ -23,7 +21,7 @@ namespace Completed
             
         }
 
-        // OnGUI用于实现（按下F2显示小组成员列表，松开F2隐藏小组成员列表）
+        // OnGUI用于实现（按下F2显示小组成员列表，松开F2隐藏小组成员列表）（作业1）
         void OnGUI()  
         {  
             if (Input.GetKeyDown(KeyCode.F2)){          //按下F2      

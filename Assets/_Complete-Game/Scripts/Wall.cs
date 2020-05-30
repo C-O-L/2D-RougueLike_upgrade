@@ -5,37 +5,37 @@ namespace Completed
 {
 	public class Wall : MonoBehaviour
 	{
-		public AudioClip chopSound1;				//1 of 2 audio clips that play when the wall is attacked by the player.
-		public AudioClip chopSound2;				//2 of 2 audio clips that play when the wall is attacked by the player.
-		public Sprite dmgSprite;					//Alternate sprite to display after Wall has been attacked by player.
-		public int hp = 3;							//hit points for the wall.
+		public AudioClip chopSound1;				//当玩家攻击墙壁时播放的2个音频片段中的1个。
+		public AudioClip chopSound2;				//当玩家攻击墙壁时播放的2个音频片段中的2个。
+		public Sprite dmgSprite;					//在墙被玩家攻击后显示另一个精灵。
+		public int hp = 3;							//墙的生命值。
 		
 		
-		private SpriteRenderer spriteRenderer;		//Store a component reference to the attached SpriteRenderer.
+		private SpriteRenderer spriteRenderer;		//将组件引用存储到附加的SpriteRenderer。
 		
 		
 		void Awake ()
 		{
-			//Get a component reference to the SpriteRenderer.
+			//获取对SpriteRenderer的组件引用。
 			spriteRenderer = GetComponent<SpriteRenderer> ();
 		}
 		
 		
-		//DamageWall is called when the player attacks a wall.
+		//当玩家攻击一堵墙时，将会调用DamageWall。
 		public void DamageWall (int loss)
 		{
-			//Call the RandomizeSfx function of SoundManager to play one of two chop sounds.
+			//调用SoundManager的RandomizeSfx函数来播放两个chop声音中的一个。
 			SoundManager.instance.RandomizeSfx (chopSound1, chopSound2);
 			
-			//Set spriteRenderer to the damaged wall sprite.
+			//将spriteRenderer设置为损坏的墙壁精灵。
 			spriteRenderer.sprite = dmgSprite;
 			
-			//Subtract loss from hit point total.
+			//从生命值中减去损失。
 			hp -= loss;
 			
-			//If hit points are less than or equal to zero:
+			//如果生命值小于或等于零:掉落道具（作业2）
 			if(hp <= 0)
-				//Disable the gameObject.
+				//禁用gameObject。
 				gameObject.SetActive (false);
 		}
 	}

@@ -5,22 +5,22 @@ namespace Completed
 {	
 	public class Loader : MonoBehaviour 
 	{
-		public GameObject gameManager;			//GameManager prefab to instantiate.
-		public GameObject soundManager;			//SoundManager prefab to instantiate.
+		public GameObject gameManager;			//GameManager预置实例化。
+		public GameObject soundManager;			//SoundManager预置实例化。
 		
 		
 		void Awake ()
 		{
-			//Check if a GameManager has already been assigned to static variable GameManager.instance or if it's still null
+			//检查GameManager是否已经被分配给静态变量GameManager。如果它仍然是空的
 			if (GameManager.instance == null)
 				
-				//Instantiate gameManager prefab
+				//实例化gameManager预制
 				Instantiate(gameManager);
 			
-			//Check if a SoundManager has already been assigned to static variable GameManager.instance or if it's still null
+			//检查SoundManager是否已经被分配给静态变量GameManager。如果它仍然是空的
 			if (SoundManager.instance == null)
 				
-				//Instantiate SoundManager prefab
+				//实例化SoundManager预制
 				Instantiate(soundManager);
 		}
 	}

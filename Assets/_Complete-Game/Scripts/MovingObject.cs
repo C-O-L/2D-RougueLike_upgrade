@@ -3,120 +3,120 @@ using System.Collections;
 
 namespace Completed
 {
-	//The abstract keyword enables you to create classes and class members that are incomplete and must be implemented in a derived class.
+	//abstract关键字使您能够创建不完整的类和类成员，这些类和成员必须在派生类中实现。
 	public abstract class MovingObject : MonoBehaviour
 	{
-		public float moveTime = 0.1f;			//Time it will take object to move, in seconds.
-		public LayerMask blockingLayer;			//Layer on which collision will be checked.
+		public float moveTime = 0.1f;			//物体移动所需的时间，以秒为单位。
+		public LayerMask blockingLayer;			//层碰撞将被检查。
 		
 		
-		private BoxCollider2D boxCollider; 		//The BoxCollider2D component attached to this object.
-		private Rigidbody2D rb2D;				//The Rigidbody2D component attached to this object.
-		private float inverseMoveTime;			//Used to make movement more efficient.
+		private BoxCollider2D boxCollider; 		//BoxCollider2D组件附加到该对象。
+		private Rigidbody2D rb2D;				//Rigidbody2D组件附加到这个对象。
+		private float inverseMoveTime;			//用来使移动更有效。
 		
 		
-		//Protected, virtual functions can be overridden by inheriting classes.
+		//受保护的虚函数可以通过继承类来重写。
 		protected virtual void Start ()
 		{
-			//Get a component reference to this object's BoxCollider2D
+			//获取此对象的BoxCollider2D的组件引用
 			boxCollider = GetComponent <BoxCollider2D> ();
 			
-			//Get a component reference to this object's Rigidbody2D
+			//获取此对象的Rigidbody2D的组件引用
 			rb2D = GetComponent <Rigidbody2D> ();
 			
-			//By storing the reciprocal of the move time we can use it by multiplying instead of dividing, this is more efficient.
+			//通过存储移动时间的倒数我们可以用乘法而不是除法来使用它，这样更有效率。
 			inverseMoveTime = 1f / moveTime;
 		}
 		
 		
-		//Move returns true if it is able to move and false if not. 
-		//Move takes parameters for x direction, y direction and a RaycastHit2D to check collision.
+		//如果可以移动，则返回true;如果不能，则返回false。 
+		//Move接受x方向、y方向和RaycastHit2D的参数来检查碰撞。
 		protected bool Move (int xDir, int yDir, out RaycastHit2D hit)
 		{
-			//Store start position to move from, based on objects current transform position.
+			//存储开始位置移动，基于对象当前转换位置。
 			Vector2 start = transform.position;
 			
-			// Calculate end position based on the direction parameters passed in when calling Move.
+			// 根据调用Move时传入的方向参数计算端位置。
 			Vector2 end = start + new Vector2 (xDir, yDir);
 			
-			//Disable the boxCollider so that linecast doesn't hit this object's own collider.
+			//禁用boxCollider，这样linecast就不会撞上这个对象自己的collider。
 			boxCollider.enabled = false;
 			
-			//Cast a line from start point to end point checking collision on blockingLayer.
+			//在blockingLayer上从开始点到结束点进行换行检查碰撞。
 			hit = Physics2D.Linecast (start, end, blockingLayer);
 			
-			//Re-enable boxCollider after linecast
+			//在linecast后重新启用boxCollider
 			boxCollider.enabled = true;
 			
-			//Check if anything was hit
+			//检查是否有东西被击中
 			if(hit.transform == null)
 			{
-				//If nothing was hit, start SmoothMovement co-routine passing in the Vector2 end as destination
+				//如果没有命中，启动平滑移动协同例程，将Vector2端作为目标传入
 				StartCoroutine (SmoothMovement (end));
 				
-				//Return true to say that Move was successful
+				//移动成功返回true
 				return true;
 			}
 			
-			//If something was hit, return false, Move was unsuccesful.
+			//如果什么东西被击中了，返回错误，移动是不成功的。
 			return false;
 		}
 		
 		
-		//Co-routine for moving units from one space to next, takes a parameter end to specify where to move to.
+		//用于将单元从一个空间移动到下一个空间的协同例程使用参数end指定要移动到的位置。
 		protected IEnumerator SmoothMovement (Vector3 end)
 		{
-			//Calculate the remaining distance to move based on the square magnitude of the difference between current position and end parameter. 
-			//Square magnitude is used instead of magnitude because it's computationally cheaper.
+			//用于将单元从一个空间移动到下一个空间的协同例程使用参数end指定要移动到的位置。根据当前位置与终端参数之差的平方值计算剩余移动距离。 
+			//平方大小被用来代替大小因为它计算起来更便宜。
 			float sqrRemainingDistance = (transform.position - end).sqrMagnitude;
 			
-			//While that distance is greater than a very small amount (Epsilon, almost zero):
+			//当这个距离大于一个非常小的量(几乎为零)时:
 			while(sqrRemainingDistance > float.Epsilon)
 			{
-				//Find a new position proportionally closer to the end, based on the moveTime
+				//根据移动的时间比例找到一个更接近终点的新位置
 				Vector3 newPostion = Vector3.MoveTowards(rb2D.position, end, inverseMoveTime * Time.deltaTime);
 				
-				//Call MovePosition on attached Rigidbody2D and move it to the calculated position.
+				//调用附加刚体2d上的MovePosition并将其移动到计算的位置。
 				rb2D.MovePosition (newPostion);
 				
-				//Recalculate the remaining distance after moving.
+				//重新计算移动后的剩余距离。
 				sqrRemainingDistance = (transform.position - end).sqrMagnitude;
 				
-				//Return and loop until sqrRemainingDistance is close enough to zero to end the function
+				//返回并循环，直到sqrRemainingDistance足够接近于0来结束函数
 				yield return null;
 			}
 		}
 		
 		
-		//The virtual keyword means AttemptMove can be overridden by inheriting classes using the override keyword.
-		//AttemptMove takes a generic parameter T to specify the type of component we expect our unit to interact with if blocked (Player for Enemies, Wall for Player).
+		//virtual关键字意味着可以通过使用override关键字继承类来重写尝试移动。
+		//尝试移动采用一个通用参数T来指定我们希望我们的单位在被阻挡时与之交互的组件类型(玩家是敌人，墙壁是玩家)。
 		protected virtual void AttemptMove <T> (int xDir, int yDir)
 			where T : Component
 		{
-			//Hit will store whatever our linecast hits when Move is called.
+			//当调用Move时，Hit将存储我们的linecast命中的所有内容。
 			RaycastHit2D hit;
 			
-			//Set canMove to true if Move was successful, false if failed.
+			//如果移动成功，设置可以移动为真;如果失败，设置为假。
 			bool canMove = Move (xDir, yDir, out hit);
 			
-			//Check if nothing was hit by linecast
+			//检查是否没有被linecast击中
 			if(hit.transform == null)
-				//If nothing was hit, return and don't execute further code.
+				//如果没有命中任何目标，则返回并不再执行进一步的代码。
 				return;
 			
-			//Get a component reference to the component of type T attached to the object that was hit
+			//获取一个对类型为T的组件的引用，该组件附加到被命中的对象上
 			T hitComponent = hit.transform.GetComponent <T> ();
 			
-			//If canMove is false and hitComponent is not equal to null, meaning MovingObject is blocked and has hit something it can interact with.
+			//如果canMove为false且hitComponent不等于null，则意味着MovingObject被阻塞，并命中了它可以与之交互的对象。
 			if(!canMove && hitComponent != null)
 				
-				//Call the OnCantMove function and pass it hitComponent as a parameter.
+				//调用OnCantMove函数并将其作为参数传递给hitComponent。
 				OnCantMove (hitComponent);
 		}
 		
 		
-		//The abstract modifier indicates that the thing being modified has a missing or incomplete implementation.
-		//OnCantMove will be overriden by functions in the inheriting classes.
+		//抽象修饰符表示被修改的对象缺少或不完整的实现。
+		//OnCantMove将被继承类中的函数覆盖。
 		protected abstract void OnCantMove <T> (T component)
 			where T : Component;
 	}
