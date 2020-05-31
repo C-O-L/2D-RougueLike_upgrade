@@ -30,10 +30,12 @@ namespace Completed
 		public int rows = 8;											//游戏板中的行数。
 		public Count wallCount = new Count (5, 9);						//每层随机墙数的上限和下限。
 		public Count foodCount = new Count (1, 5);						//每层随机食物数量的上限和下限。
+		public Count propCount = new Count (0, 1);                      //每层随机道具数量的上限和下限。
 		public GameObject exit;											//预置出口。
 		public GameObject[] floorTiles;									//地板预制件阵列。
 		public GameObject[] wallTiles;									//墙预制件阵列。
 		public GameObject[] foodTiles;									//一系列的预制食品。
+		public GameObject[] propTiles;                                  //一系列的预制道具。
 		public GameObject[] enemyTiles;									//敌人预制件阵列。
 		public GameObject[] outerWallTiles;								//外瓦预制件阵列。
 		
@@ -42,7 +44,7 @@ namespace Completed
 		
 		
 		//清除我们的列表网格位置并准备生成一个新板。
-		void InitialiseList ()
+		public void InitialiseList ()
 		{
 			//清除我们的列表网格位置。
 			gridPositions.Clear ();
@@ -108,7 +110,7 @@ namespace Completed
 		
 		
 		//LayoutObjectAtRandom接受一个游戏对象数组来进行选择，以及创建对象数量的最小和最大范围。
-		void LayoutObjectAtRandom (GameObject[] tileArray, int minimum, int maximum)
+		public void LayoutObjectAtRandom (GameObject[] tileArray, int minimum, int maximum)
 		{
 			//选择要在最小和最大限制内实例化的随机对象数
 			int objectCount = Random.Range (minimum, maximum+1);
@@ -119,7 +121,7 @@ namespace Completed
 				//通过从gridPosition中存储的可用vector3列表中获取一个随机位置，为randomPosition选择一个位置
 				Vector3 randomPosition = RandomPosition();
 				
-				//从tileArray中随机选择一个平铺，并将其赋给tileChoice
+				//从tileArray中随机选择一个游戏对象，并将其赋给tileChoice
 				GameObject tileChoice = tileArray[Random.Range (0, tileArray.Length)];
 				
 				//实例化tileChoice在不改变旋转的随机位置返回的位置
@@ -142,6 +144,9 @@ namespace Completed
 			
 			//在随机位置实例化基于最小值和最大值的随机数量的食物块。
 			LayoutObjectAtRandom (foodTiles, foodCount.minimum, foodCount.maximum);
+
+			//在随机位置实例化基于最小值和最大值的随机数量的道具。
+			LayoutObjectAtRandom (propTiles, propCount.minimum, propCount.maximum);
 			
 			//根据当前等级的数量，根据对数级数确定敌人的数量
 			int enemyCount = (int)Mathf.Log(level, 2f);

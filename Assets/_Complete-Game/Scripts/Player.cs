@@ -10,9 +10,11 @@ namespace Completed
 	{
 		public float restartLevelDelay = 1f;		//延迟时间(以秒为单位)以重新启动级别。
 		public int pointsPerFood = 10;				//捡起一个食物对象时要加到玩家食物点数上的点数。
+		public int pointsPerProp = 1;               //捡起一个道具对象时要加到玩家道具点数上的点数。
 		public int pointsPerSoda = 20;				//捡起苏打水物品时要加到玩家食物点数上的点数。
 		public int wallDamage = 1;					//玩家在砍墙时对墙壁造成的伤害。
 		public Text foodText;						//显示当前玩家食物总数的UI文本。
+		public Text propText;                       //显示当前玩家道具总数的UI文本。
 		public AudioClip moveSound1;				//当玩家移动时播放的2个音频剪辑中的1个。
 		public AudioClip moveSound2;				//2的2个音频剪辑播放时，玩家移动。
 		public AudioClip eatSound1;					//当玩家收集食物对象时播放的2个音频片段中的1个。
@@ -23,6 +25,7 @@ namespace Completed
 		
 		private Animator animator;					//用于存储对播放器的animator组件的引用。
 		private int food;                           //用于在关卡中储存玩家的食物点数。
+		private int prop;                           //用于在关卡中储存玩家的道具点数。
 #if UNITY_IOS || UNITY_ANDROID || UNITY_WP8 || UNITY_IPHONE
         private Vector2 touchOrigin = -Vector2.one;	//用于存储移动控件的屏幕触摸原点位置。
 #endif
@@ -39,6 +42,12 @@ namespace Completed
 			
 			//设置foodText来反映当前玩家的食物总数。
 			foodText.text = "Food: " + food;
+
+			//在GameManager中获取当前道具点数总和。实例之间的水平。
+			prop = GameManager.instance.playerPropPoints;
+
+			//设置propText来反映当前玩家的道具总数。
+			propText.text = "Prop: " + prop;
 			
 			//调用MovingObject基类的Start函数。
 			base.Start ();
@@ -50,6 +59,9 @@ namespace Completed
 		{
 			//当玩家对象被禁用时，将当前的本地食物总数存储在GameManager中，这样它就可以在下一层重新加载。
 			GameManager.instance.playerFoodPoints = food;
+
+			//当玩家对象被禁用时，将当前的本地道具总数存储在GameManager中，这样它就可以在下一层重新加载。
+			GameManager.instance.playerPropPoints = prop;
 		}
 		
 		
@@ -214,6 +226,22 @@ namespace Completed
 				SoundManager.instance.RandomizeSfx (drinkSound1, drinkSound2);
 				
 				//禁用玩家碰撞的soda对象。
+				other.gameObject.SetActive (false);
+			}
+
+			//检查扳机上的标签是否与道具相撞。
+			else if (other.tag == "Prop")
+			{
+				//将点数加到玩家的道具点数中
+				prop += pointsPerProp;
+
+				//更新propText来表示当前的总数
+				propText.text = "Prop: " + prop;
+
+				//调用SoundManager的RandomizeSfx函数，（没有制作获取道具的声音，用进食声音代替）传入两个进食声音进行选择，以播获取道具的效果。
+				SoundManager.instance.RandomizeSfx (eatSound1, eatSound2);
+				
+				//禁用玩家碰撞的道具对象。
 				other.gameObject.SetActive (false);
 			}
 		}
