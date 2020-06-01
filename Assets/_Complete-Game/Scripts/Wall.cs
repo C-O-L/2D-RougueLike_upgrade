@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic; 		//允许我们使用列表。
 using Random = UnityEngine.Random; 		//告诉 Random 使用单位引擎随机数生成器。
 
-
 namespace Completed
 {
 	public class Wall : MonoBehaviour
@@ -13,8 +12,6 @@ namespace Completed
 		public Sprite dmgSprite;					//在墙被玩家攻击后显示另一个精灵。
 		public int hp = 3;							//墙的生命值。
 		public GameObject[] propTiles;              //一系列预制道具。
-		// public Vector3 a = Vector3.one;
-		// public Quaternion b = new Quaternion(0,0,0,0);
 		public Vector2 minPos,maxPos;               //生成道具的位置范围
 		
 		private SpriteRenderer spriteRenderer;		//将组件引用存储到附加的SpriteRenderer。
@@ -43,27 +40,23 @@ namespace Completed
 			if(hp <= 0){
 				//禁用gameObject。
 				gameObject.SetActive (false);
-
-				// Generate();
-				//实例化道具
-				// GameObject go = GameObject.Instantiate(propTiles[0], a, b);
-				// GameObject to = GameObject.Instantiate(propTiles[1], a, b);
                 
-				GameObject a = Instantiate(propTiles[0], new Vector3(Random.Range(minPos.x, maxPos.x), Random.Range(minPos.y, maxPos.y), 0), Quaternion.identity);
-    			GameObject b = Instantiate(propTiles[1], new Vector3(Random.Range(minPos.x, maxPos.x), Random.Range(minPos.y, maxPos.y), 0), Quaternion.identity);
+				//调用Generate方法，实例化道具
+				Generate();
 			}
 		}
 
-		// public void Generate()
-		// {
-    	// 	GameObject a = Instantiate(propTiles[0], new Vector3(Random.Range(minPos.x, maxPos.x), Random.Range(minPos.y, maxPos.y), 0), Quaternion.identity);
-    	// 	GameObject b = Instantiate(propTiles[1], new Vector3(Random.Range(minPos.x, maxPos.x), Random.Range(minPos.y, maxPos.y), 0), Quaternion.identity);
-    	// 	a.transform.SetParent(this.transform);b.transform.SetParent(this.transform);
-    	// 	if(Vector3.Distance(a.transform.position,b.transform.position) < 4f)
-    	// 	{
-        // 		Destroy(a);Destroy(b);
-        // 		Generate();
-    	// 	}
-		// }
+		public void Generate()
+		{
+			int num = Random.Range(1, 3);           //生成随机数范围1-2
+			if(num == 1){
+				//实例化propTiles[]道具数组中的第一个
+    			GameObject a = Instantiate(propTiles[0], new Vector3(Random.Range(minPos.x, maxPos.x), Random.Range(minPos.y, maxPos.y), 0), Quaternion.identity);
+			}
+			else if(num == 2){
+				//实例化propTiles[]道具数组中的第一个
+    			GameObject b = Instantiate(propTiles[1], new Vector3(Random.Range(minPos.x, maxPos.x), Random.Range(minPos.y, maxPos.y), 0), Quaternion.identity);
+			}
+		}
 	}
 }
