@@ -9,10 +9,20 @@ namespace Completed
 	
 	public class GameManager : MonoBehaviour
 	{
+
+		private static GameManager _instance;
+		public static GameManager Instance{
+			get{
+				return _instance;
+			}
+		}
+
+
 		public float levelStartDelay = 2f;						//在开始关卡前等待的时间，以秒为单位。
 		public float turnDelay = 0.1f;							//每个玩家回合之间的延迟。
 		public int playerFoodPoints = 100;						//玩家食物点数的起始值。
 		public int playerPropPoints = 0;                        //玩家道具点数的起始值。
+		public int playerBulletPoints = 0;                      //玩家弹药点数的起始值。
 		public static GameManager instance = null;				//GameManager的静态实例，允许任何其他脚本访问它。
 		[HideInInspector] public bool playersTurn = true;		//布尔值检查如果它是玩家转身，隐藏在检查，但公共。
 		

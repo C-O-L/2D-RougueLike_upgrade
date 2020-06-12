@@ -11,10 +11,12 @@ namespace Completed
 		public float restartLevelDelay = 1f;		//延迟时间(以秒为单位)以重新启动级别。
 		public int pointsPerFood = 10;				//捡起一个食物对象时要加到玩家食物点数上的点数。
 		public int pointsPerProp = 1;               //捡起一个道具对象时要加到玩家道具点数上的点数。
+		public int pointsPerBullet = 1;             //捡起一个弹药对象时要加到玩家弹药点数上的点数。
 		public int pointsPerSoda = 20;				//捡起苏打水物品时要加到玩家食物点数上的点数。
 		public int wallDamage = 1;					//玩家在砍墙时对墙壁造成的伤害。
 		public Text foodText;						//显示当前玩家食物总数的UI文本。
 		public Text propText;                       //显示当前玩家道具总数的UI文本。
+		public Text bulletText;                     //显示当前玩家弹药总数的UI文本。
 		public AudioClip moveSound1;				//当玩家移动时播放的2个音频剪辑中的1个。
 		public AudioClip moveSound2;				//2的2个音频剪辑播放时，玩家移动。
 		public AudioClip eatSound1;					//当玩家收集食物对象时播放的2个音频片段中的1个。
@@ -26,6 +28,15 @@ namespace Completed
 		private Animator animator;					//用于存储对播放器的animator组件的引用。
 		private int food;                           //用于在关卡中储存玩家的食物点数。
 		private int prop;                           //用于在关卡中储存玩家的道具点数。
+		private int bullet;                         //用于在关卡中储存玩家的弹药点数。
+		public Transform firePoint;                 //发炮位置
+		float timer = 0f;
+		float fireRate = 0.15f;
+		float bulletSpeed = 2f;
+		public GameObject bulletPrefab;              //子弹
+		Rigidbody2D rb;
+
+		public Vector3 bullectEulerAngles;
 #if UNITY_IOS || UNITY_ANDROID || UNITY_WP8 || UNITY_IPHONE
         private Vector2 touchOrigin = -Vector2.one;	//用于存储移动控件的屏幕触摸原点位置。
 #endif
@@ -34,6 +45,7 @@ namespace Completed
 		//Start覆盖MovingObject的Start函数
 		protected override void Start ()
 		{
+			rb = GetComponent<Rigidbody2D>();                       //抓取Rigidbody2D游戏组件，并保存在rb里
 			//获取对播放器的animator组件的一个组件引用
 			animator = GetComponent<Animator>();
 			
@@ -48,6 +60,12 @@ namespace Completed
 
 			//设置propText来反映当前玩家的道具总数。
 			propText.text = "Prop: " + prop;
+
+			//在GameManager中获取当前弹药点数总和。实例之间的水平。
+			bullet = GameManager.instance.playerBulletPoints;
+
+			//设置bulletText来反映当前玩家的弹药总数。
+			bulletText.text = "Bullet: " + bullet;
 			
 			//调用MovingObject基类的Start函数。
 			base.Start ();
@@ -62,11 +80,18 @@ namespace Completed
 
 			//当玩家对象被禁用时，将当前的本地道具总数存储在GameManager中，这样它就可以在下一层重新加载。
 			GameManager.instance.playerPropPoints = prop;
+
+			//当玩家对象被禁用时，将当前的本地弹药总数存储在GameManager中，这样它就可以在下一层重新加载。
+			GameManager.instance.playerBulletPoints = bullet;
 		}
 		
 		
 		private void Update ()
 		{
+			bulletText.text = "Bullet: " + bullet;
+
+
+
 			//如果不是轮到玩家，则退出该函数。
 			if(!GameManager.instance.playersTurn) return;
 			
@@ -136,7 +161,35 @@ namespace Completed
 				//通过在水平和垂直作为参数指定方向的玩家移动。
 				AttemptMove<Wall> (horizontal, vertical);
 			}
+
+			// 开火
+			timer += Time.deltaTime;
+			if(timer > fireRate && Input.GetKey(KeyCode.Space))     //按空格键
+			{
+				if(bullet > 0){
+					timer = 0;
+					Fire();
+					bullet --;
+				}
+				
+			}
 		}
+
+		//发射子弹的方法
+		void Fire()
+		{
+			// 子弹跟随玩家方向
+			bulletPrefab = Instantiate(bulletPrefab, firePoint.position, Quaternion.Euler(transform.eulerAngles + bullectEulerAngles));
+
+			//抓取子弹的Rigidbody2D组件，速度方向设置为上，大小设置为bulletSpeed
+			// bulletPrefab.GetComponent<Rigidbody2D>().velocity = Vector2.up * bulletSpeed;
+
+			// transform.Translate(transform.up*bulletSpeed*Time.deltaTime, Space.World);
+
+			//定时销毁子弹
+			Destroy(bulletPrefab, 100.0f);
+		}
+
 		
 		//在基类MovingObject中，尝试移动覆盖了尝试移动函数
 		//尝试移动采取一个通用参数T，这将为玩家的类型墙，它也为整数的x和y方向移动。
@@ -166,6 +219,11 @@ namespace Completed
 			
 			//设置GameManager的playersTurn布尔值为false，现在玩家已经结束。
 			GameManager.instance.playersTurn = false;
+
+			if(xDir > 0) bullectEulerAngles = new Vector3(0, 0, -90);
+            else if(xDir < 0) bullectEulerAngles = new Vector3(0, 0, 90);
+            if(yDir > 0) bullectEulerAngles = new Vector3(0, 0, 0);
+            else if(yDir < 0) bullectEulerAngles = new Vector3(0, 0, -180);
 		}
 		
 		
@@ -240,6 +298,22 @@ namespace Completed
 
 				//调用SoundManager的RandomizeSfx函数，（没有制作获取道具的声音，用进食声音代替）传入两个进食声音进行选择，以播获取道具的效果。
 				SoundManager.instance.RandomizeSfx (eatSound1, eatSound2);
+				
+				//禁用玩家碰撞的道具对象。
+				other.gameObject.SetActive (false);
+			}
+
+			//检查扳机上的标签是否与弹药相撞。
+			else if (other.tag == "Bullet")
+			{
+				//将点数加到玩家的道具点数中
+				bullet += pointsPerBullet;
+
+				//更新bulletText来表示当前的总数
+				bulletText.text = "Bullet: " + bullet;
+
+				//调用SoundManager的RandomizeSfx函数，（没有制作获取弹药的声音，用饮酒声音代替）传入两个饮酒声音进行选择，以播获取道具的效果。
+				SoundManager.instance.RandomizeSfx (drinkSound1, drinkSound2);
 				
 				//禁用玩家碰撞的道具对象。
 				other.gameObject.SetActive (false);

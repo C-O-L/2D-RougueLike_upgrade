@@ -31,11 +31,13 @@ namespace Completed
 		public Count wallCount = new Count (5, 9);						//每层随机墙数的上限和下限。
 		public Count foodCount = new Count (1, 5);						//每层随机食物数量的上限和下限。
 		public Count propCount = new Count (0, 1);                      //每层随机道具数量的上限和下限。
+		public Count bulletCount = new Count (0, 1);                    //每层随机弹药数量的上限和下限。
 		public GameObject exit;											//预置出口。
 		public GameObject[] floorTiles;									//地板预制件阵列。
 		public GameObject[] wallTiles;									//墙预制件阵列。
 		public GameObject[] foodTiles;									//一系列的预制食品。
 		public GameObject[] propTiles;                                  //一系列的预制道具。
+		public GameObject[] bulletTiles;                                //一系列的预制弹药。
 		public GameObject[] enemyTiles;									//敌人预制件阵列。
 		public GameObject[] outerWallTiles;								//外瓦预制件阵列。
 		
@@ -147,6 +149,9 @@ namespace Completed
 
 			//在随机位置实例化基于最小值和最大值的随机数量的道具。
 			LayoutObjectAtRandom (propTiles, propCount.minimum, propCount.maximum);
+
+			//在随机位置实例化基于最小值和最大值的随机数量的弹药。
+			LayoutObjectAtRandom (bulletTiles, bulletCount.minimum, bulletCount.maximum);
 			
 			//根据当前等级的数量，根据对数级数确定敌人的数量
 			int enemyCount = (int)Mathf.Log(level, 2f);
