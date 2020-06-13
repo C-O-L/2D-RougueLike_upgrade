@@ -8,17 +8,14 @@ namespace Completed
     {
         public float bulletSpeed;                                               //子弹速度
         public GameObject bulletPrefab;                                         //子弹
-        public Transform firePoint;                                             //发炮位置
         Rigidbody2D rb;
         public float fireRate;                                                  //发射频率
-        float timer = 0f;                                                       //计时
-        public int hp = 2;						                                // Enemy3的生命值。
+        float timer = 0.0f;                                                     //计时
+        public int hp = 1;						                                // Enemy3的生命值。
         public GameObject[] PropTitle;                                          //一系列道具
         public GameObject prop;
         private bool skipMove;								                    //用布尔值决定敌人在这一回合进行移动还是跳过.
         public int playerDamage; 							                    //玩家进行攻击时food数-1.
-		public AudioClip attackSound1;						                    //攻击音频1.
-		public AudioClip attackSound2;						                    //攻击音频2.
 		
 		
 		private Animator animator;							                    //动画组件.
@@ -33,7 +30,8 @@ namespace Completed
 
         private void Update() {
             timer += Time.deltaTime;
-            if(timer > 0.8f){
+            // 每2秒发射一颗子弹
+            if(timer > 2f){
                 Fire();
                 timer = 0f;
             }
@@ -42,32 +40,11 @@ namespace Completed
         //发射子弹的方法
         public void Fire()
         {
-            GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
+            GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
             //抓取子弹的Rigidbody2D组件，速度方向设置为下，大小设置为bulletSpeed
-            // bullet.GetComponent<Rigidbody2D>().velocity = Vector2.down * bulletSpeed;
+            bullet.GetComponent<Rigidbody2D>().velocity = Vector2.down * bulletSpeed;
             //定时销毁子弹
             Destroy(bullet, 10.0f);   
-        }
-
-        // //子弹碰撞
-        // private void OnTriggerEnter2D(Collider2D collision) {
-        //     //如果碰到玩家
-        //     if(collision.gameObject != null)
-        //     {
-        //         Debug.Log(collision.gameObject.name);
-        //         Destroy(collision.gameObject);                                  //销毁子弹
-        //         FindObjectOfType<Player>().LoseFood(30);
-        //     }
-        // }
-        
-        // 敌人碰撞方法
-        private void OnCollisionEnter2D(Collision2D collision) {
-            // 如果碰到子弹
-            if(collision.gameObject.CompareTag("Bullet"))
-            {
-                Destroy(collision.gameObject);                                  //销毁子弹
-                DamageEnemy ();                      
-            }
         }
 
         //掉血方法
@@ -76,7 +53,6 @@ namespace Completed
             hp --;
             if(hp == 0){
                 Destroy(gameObject);                                                //销毁自己
-                GameManager.Instance.playersTurn = true;
                 Produce();                                                          //调用Produce()方法生成道具
             }
         }
@@ -104,15 +80,5 @@ namespace Completed
             }
         }
 
-
-        //当玩家攻击Enemy3时，将会调用DamageEnemy。
-        public void DamageEnemy ()
-        {
-            //从生命值中减去损失。
-            hp --;
-            if(hp == 0){
-                TakeDamage();
-            }
-        }
     }
 }

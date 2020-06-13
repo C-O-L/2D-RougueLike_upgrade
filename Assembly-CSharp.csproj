@@ -54,11 +54,15 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\_Complete-Game\Scripts\BoardManager.cs" />
+     <Compile Include="Assets\_Complete-Game\Scripts\Boss.cs" />
      <Compile Include="Assets\_Complete-Game\Scripts\BulletEnemy.cs" />
      <Compile Include="Assets\_Complete-Game\Scripts\BulletPlayer.cs" />
      <Compile Include="Assets\_Complete-Game\Scripts\DisplayTeamList.cs" />
      <Compile Include="Assets\_Complete-Game\Scripts\Enemy.cs" />
      <Compile Include="Assets\_Complete-Game\Scripts\Enemy3_bullet.cs" />
+     <Compile Include="Assets\_Complete-Game\Scripts\Enemy4_Bullet.cs" />
+     <Compile Include="Assets\_Complete-Game\Scripts\Enemy5_Bullet.cs" />
+     <Compile Include="Assets\_Complete-Game\Scripts\Enemy6_Bullet.cs" />
      <Compile Include="Assets\_Complete-Game\Scripts\GameManager.cs" />
      <Compile Include="Assets\_Complete-Game\Scripts\Loader.cs" />
      <Compile Include="Assets\_Complete-Game\Scripts\MovingObject.cs" />

@@ -16,7 +16,7 @@ namespace Completed
         // Update is called once per frame
         void Update()
         {
-            GetComponent<Rigidbody2D>().velocity = Vector2.down * bulletSpeed;
+            // GetComponent<Rigidbody2D>().velocity = Vector2.down * bulletSpeed;
         }
 
         //子弹碰撞
@@ -24,9 +24,9 @@ namespace Completed
             //如果碰到玩家
             if(collision.gameObject.CompareTag("Player"))
             {
-                Debug.Log("mxu_sdjhc");
-                Destroy(gameObject);                                  //销毁子弹
-                FindObjectOfType<Player>().LoseFood(30);
+                Debug.Log("碰到玩家");
+                Destroy(gameObject);                                   //销毁子弹
+                FindObjectOfType<Player>().LoseFood(10);               //子弹击中玩家，玩家点血10点 
             }
         }
     }

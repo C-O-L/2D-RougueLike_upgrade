@@ -50,12 +50,12 @@ namespace Completed
 		// 用随机数来控制生成随机道具
 		public void Generate()
 		{
-			int num = Random.Range(1, 4);           //生成随机数范围1-2
-			if(num == 2){
+			int num = Random.Range(1, 3);           //生成随机数范围1-2
+			if(num == 1){
 				//实例化propTiles[]道具数组中的第一个
     			GameObject a = Instantiate(propTiles[0], new Vector3(Random.Range(minPos.x, maxPos.x), Random.Range(minPos.y, maxPos.y), 0), Quaternion.identity);
 			}
-			else if(num == 3){
+			else if(num == 2){
 				//实例化bulletTiles[]弹药数组中的第一个
     			GameObject b = Instantiate(bulletTiles[0], new Vector3(Random.Range(minPos.x, maxPos.x), Random.Range(minPos.y, maxPos.y), 0), Quaternion.identity);
 			}

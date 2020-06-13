@@ -9,10 +9,10 @@ namespace Completed
 	public class Player : MovingObject
 	{
 		public float restartLevelDelay = 1f;		//延迟时间(以秒为单位)以重新启动级别。
-		public int pointsPerFood = 10;				//捡起一个食物对象时要加到玩家食物点数上的点数。
+		public int pointsPerFood = 20;				//捡起一个食物对象时要加到玩家食物点数上的点数。
 		public int pointsPerProp = 1;               //捡起一个道具对象时要加到玩家道具点数上的点数。
 		public int pointsPerBullet = 1;             //捡起一个弹药对象时要加到玩家弹药点数上的点数。
-		public int pointsPerSoda = 20;				//捡起苏打水物品时要加到玩家食物点数上的点数。
+		public int pointsPerSoda = 30;				//捡起苏打水物品时要加到玩家食物点数上的点数。
 		public int wallDamage = 1;					//玩家在砍墙时对墙壁造成的伤害。
 		public Text foodText;						//显示当前玩家食物总数的UI文本。
 		public Text propText;                       //显示当前玩家道具总数的UI文本。
@@ -29,7 +29,6 @@ namespace Completed
 		private int food;                           //用于在关卡中储存玩家的食物点数。
 		private int prop;                           //用于在关卡中储存玩家的道具点数。
 		private int bullet;                         //用于在关卡中储存玩家的弹药点数。
-		public Transform firePoint;                 //发炮位置
 		float timer = 0f;
 		float fireRate = 0.15f;
 		float bulletSpeed = 2f;
@@ -83,6 +82,8 @@ namespace Completed
 
 			//当玩家对象被禁用时，将当前的本地弹药总数存储在GameManager中，这样它就可以在下一层重新加载。
 			GameManager.instance.playerBulletPoints = bullet;
+			
+			
 		}
 		
 		
@@ -179,7 +180,7 @@ namespace Completed
 		void Fire()
 		{
 			// 子弹跟随玩家方向
-			bulletPrefab = Instantiate(bulletPrefab, firePoint.position, Quaternion.Euler(transform.eulerAngles + bullectEulerAngles));
+			bulletPrefab = Instantiate(bulletPrefab, transform.position, Quaternion.Euler(transform.eulerAngles + bullectEulerAngles));
 
 			//抓取子弹的Rigidbody2D组件，速度方向设置为上，大小设置为bulletSpeed
 			// bulletPrefab.GetComponent<Rigidbody2D>().velocity = Vector2.up * bulletSpeed;
@@ -187,7 +188,7 @@ namespace Completed
 			// transform.Translate(transform.up*bulletSpeed*Time.deltaTime, Space.World);
 
 			//定时销毁子弹
-			Destroy(bulletPrefab, 100.0f);
+			Destroy(bulletPrefab, 50.0f);
 		}
 
 		
@@ -318,6 +319,24 @@ namespace Completed
 				//禁用玩家碰撞的道具对象。
 				other.gameObject.SetActive (false);
 			}
+
+			//检查扳机上的标签是否与食物换取弹药的npc相撞。
+			else if (other.tag == "FoodForBullet")
+			{
+				//将玩家的道具点数+5,食物数量减少5
+				bullet += 10;
+				food -= 5;
+				//更新bulletText来表示当前的总数
+				bulletText.text = "Bullet: " + bullet;
+				//更新foodText来表示当前的总数，并通知玩家他们获得了分数
+				foodText.text = "+" + pointsPerSoda + " Food: " + food;
+
+				//调用SoundManager的RandomizeSfx函数，（没有制作获取弹药的声音，用饮酒声音代替）传入两个饮酒声音进行选择，以播获取道具的效果。
+				SoundManager.instance.RandomizeSfx (drinkSound1, drinkSound2);
+				
+				//禁用玩家碰撞的道具对象。
+				other.gameObject.SetActive (false);
+			}
 		}
 		
 		
@@ -364,6 +383,16 @@ namespace Completed
 				GameManager.instance.GameOver ();
 			}
 		}
+
+		// // 秘籍方法
+		// public void Secret()
+		// {
+		// 	// 同时按下W、S、U、I键，玩家food值+50
+		// 	if(Input.GetKey(KeyCode.Z)){
+		// 		LoseFood(50);
+		// 	}
+		// }
+
 	}
 }
 

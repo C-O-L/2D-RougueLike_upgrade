@@ -10,12 +10,12 @@ namespace Completed
 	public class GameManager : MonoBehaviour
 	{
 
-		private static GameManager _instance;
-		public static GameManager Instance{
-			get{
-				return _instance;
-			}
-		}
+		// private static GameManager _instance;
+		// public static GameManager Instance{
+		// 	get{
+		// 		return _instance;
+		// 	}
+		// }
 
 
 		public float levelStartDelay = 2f;						//在开始关卡前等待的时间，以秒为单位。

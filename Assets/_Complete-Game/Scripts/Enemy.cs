@@ -10,7 +10,6 @@ namespace Completed
 		public AudioClip attackSound1;						//攻击音频1.
 		public AudioClip attackSound2;						//攻击音频2.
 		
-		public int hp = 1;						            // Enemy的生命值。
 		private Animator animator;							//动画组件.
 		private Transform target;							//转换目标.
 		private bool skipMove;								//用布尔值决定敌人在这一回合进行移动还是跳过.
@@ -93,16 +92,5 @@ namespace Completed
 			SoundManager.instance.RandomizeSfx (attackSound1, attackSound2);
 		}
 
-		//掉血方法
-        public void TakeDamage()
-        {
-            hp --;
-            if(hp <= 0){
-                Destroy(gameObject);                                                //销毁自己
-				
-				// 销毁后让玩家移动（）   
-				// GameManager.Instance.playersTurn = true;
-            }
-        }
 	}
 }

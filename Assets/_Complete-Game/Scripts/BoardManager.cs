@@ -31,7 +31,9 @@ namespace Completed
 		public Count wallCount = new Count (5, 9);						//每层随机墙数的上限和下限。
 		public Count foodCount = new Count (1, 5);						//每层随机食物数量的上限和下限。
 		public Count propCount = new Count (0, 1);                      //每层随机道具数量的上限和下限。
-		public Count bulletCount = new Count (0, 1);                    //每层随机弹药数量的上限和下限。
+		public Count bulletCount = new Count (0, 5);                    //每层随机弹药数量的上限和下限。
+		public Count enemy3Count = new Count (2, 5);                    //每层随机会发射子弹的敌人数量的上限和下限。
+		public Count foodForBulletCount = new Count (1, 1);             //5的倍数关卡出现的食物换取弹药npc的上下限，即出现一个
 		public GameObject exit;											//预置出口。
 		public GameObject[] floorTiles;									//地板预制件阵列。
 		public GameObject[] wallTiles;									//墙预制件阵列。
@@ -39,7 +41,10 @@ namespace Completed
 		public GameObject[] propTiles;                                  //一系列的预制道具。
 		public GameObject[] bulletTiles;                                //一系列的预制弹药。
 		public GameObject[] enemyTiles;									//敌人预制件阵列。
+		public GameObject[] enemy3Tiles;								//敌人3预制件阵列。
+		public GameObject boss;                                         //Boss
 		public GameObject[] outerWallTiles;								//外瓦预制件阵列。
+		public GameObject[] foodForBullet;                              //食物换取弹药，只在5的倍数关出现
 		
 		private Transform boardHolder;									//一个变量，用于存储对Board对象转换的引用。
 		private List <Vector3> gridPositions = new List <Vector3> ();	//放置磁贴的可能位置列表。
@@ -84,8 +89,7 @@ namespace Completed
 						toInstantiate = outerWallTiles [Random.Range (0, outerWallTiles.Length)];
 					
 					//使用prefab实例化GameObject实例，该prefab选择用于在循环中当前网格位置对应的Vector3处实例化，并将其转换为GameObject。
-					GameObject instance =
-						Instantiate (toInstantiate, new Vector3 (x, y, 0f), Quaternion.identity) as GameObject;
+					GameObject instance = Instantiate (toInstantiate, new Vector3 (x, y, 0f), Quaternion.identity) as GameObject;
 					
 					//将我们新实例化的对象实例的父级设置为boardHolder，这只是组织性的，以避免混乱的层次结构。
 					instance.transform.SetParent (boardHolder);
@@ -158,9 +162,26 @@ namespace Completed
 			
 			//基于最小值和最大值，在随机位置实例化一个随机数量的敌人。
 			LayoutObjectAtRandom (enemyTiles, enemyCount, enemyCount);
+
+			//基于最小值和最大值，在随机位置实例化一个随机数量的敌人3。
+			LayoutObjectAtRandom (enemy3Tiles, enemy3Count.minimum, enemy3Count.maximum);
 			
 			//实例化游戏板右上角的出口平铺
 			Instantiate (exit, new Vector3 (columns - 1, rows - 1, 0f), Quaternion.identity);
+			
+			
+			// 如果关卡数为5的倍数，出现食物换取道具的Prop
+			if(level % 5 == 0){
+				LayoutObjectAtRandom (foodForBullet, foodForBulletCount.minimum, foodForBulletCount.maximum);
+				// GameObject a = Instantiate(foodForBullet[0], new Vector3(Random.Range(2, 2), Random.Range(6, 6), 0), Quaternion.identity);
+			}
+
+			// 如果关卡数为10的倍数，出现Boss
+			if(level % 10 == 0){
+				// GameObject a = Instantiate(boss[0], new Vector3(Random.Range(8, 5), Random.Range(8.5f, 5), 0), Quaternion.identity);
+				// 在出口位置实例化一个敌人，敌人没死之前不能通关
+				Instantiate (boss, new Vector3 (columns - 1, rows - 1, 0f), Quaternion.identity);
+			}
 		}
 	}
 }
